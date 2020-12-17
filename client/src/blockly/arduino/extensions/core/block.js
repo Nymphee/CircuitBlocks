@@ -19,7 +19,7 @@ Blockly.Block.prototype.getVars = function() {
       }else if(input.connection && input.connection.isConnected()){
         var varBlock = input.connection.targetBlock();
 
-        if(varBlock.type == "variables_get"){
+        if(varBlock.type == "variables_get" && varBlock.getVarModels()[0] != undefined){
           vars.push(varBlock.getVarModels()[0].id_);
         }
       }

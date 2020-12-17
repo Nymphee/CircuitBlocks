@@ -14668,9 +14668,9 @@ Blockly.Events.Change.prototype.run = function (a) {
     case "breakpoint":
       b.enableBreakpoint(a);
       break;
-    case "comment":
+    /*case "comment":
       b.setCommentText(a || null);
-      break;
+      break;*/
     case "collapsed":
       b.setCollapsed(a);
       break;
@@ -15963,10 +15963,10 @@ Blockly.Comment.prototype.deleteMouseDown_ = function (a) {
 Blockly.Comment.prototype.deleteMouseOut_ = function () {
   Blockly.utils.removeClass(this.deleteIconBorder_, "blocklyDeleteIconHighlighted")
 };
-Blockly.Comment.prototype.deleteMouseUp_ = function (a) {
+/*Blockly.Comment.prototype.deleteMouseUp_ = function (a) {
   this.block_.setCommentText(null);
   a.stopPropagation()
-};
+};*/
 Blockly.Comment.prototype.addMinimizeDom_ = function () {
   this.minimizeGroup_ = Blockly.utils.createSvgElement("g", {"class": "blocklyCommentMinimizeIcon"}, this.svgGroup_);
   Blockly.utils.createSvgElement("rect", {
@@ -18801,7 +18801,7 @@ Blockly.Xml.domToBlockHeadless_ = function (a, b) {
         c.domToMutation && (c.domToMutation(e),
         c.initSvg && c.initSvg());
         break;
-      case "comment":
+      /*case "comment":
         c.setCommentText(e.textContent);
         var l = e.getAttribute("pinned");
         l && !c.isInFlyout && setTimeout(function () {
@@ -18810,7 +18810,7 @@ Blockly.Xml.domToBlockHeadless_ = function (a, b) {
         f = parseInt(e.getAttribute("w"), 10);
         e = parseInt(e.getAttribute("h"), 10);
         !isNaN(f) && !isNaN(e) && c.comment && c.comment.setVisible && c.comment.setBubbleSize(f, e);
-        break;
+        break;*/
       case "data":
         c.data = e.textContent;
         break;
@@ -19497,11 +19497,11 @@ Blockly.WorkspaceSvg.prototype.showContextMenu_ = function (a) {
     this.options.comments && c.push(Blockly.ContextMenu.workspaceCommentOption(f, a));
     this.scrollbar && c.push(Blockly.ContextMenu.wsCleanupOption(this,
       d.length));
-    if (this.options.collapse) {
+    /*if (this.options.collapse) {
       for (var g = !1, h = !1, k = 0; k < d.length; k++) for (var l = d[k]; l;) l.isCollapsed() ? g = !0 : h = !0, l = l.getNextBlock();
       c.push(Blockly.ContextMenu.wsCollapseOption(h, d));
       c.push(Blockly.ContextMenu.wsExpandOption(g, d))
-    }
+    }*/
     var n = Blockly.WorkspaceSvg.buildDeleteList_(d), m = 0;
     for (k = 0; k < n.length; k++) n[k].isShadow() || m++;
     d = {
@@ -21029,9 +21029,9 @@ Blockly.Block.prototype.getInputTargetBlock = function (a) {
 Blockly.Block.prototype.getCommentText = function () {
   return this.comment || ""
 };
-Blockly.Block.prototype.setCommentText = function (a) {
+/*Blockly.Block.prototype.setCommentText = function (a) {
   this.comment != a && (Blockly.Events.fire(new Blockly.Events.BlockChange(this, "comment", null, this.comment, a || "")), this.comment = a)
-};
+};*/
 Blockly.Block.prototype.enableBreakpoint = function (a) {
   var b = !1;
   a ? (this.breakpoint || (this.breakpoint = new Blockly.Breakpoint(this), b = !0), this.breakpoint.setVisible(this.isBreakpointSet())) : this.breakpoint && (this.breakpoint.dispose(), b = !0);
@@ -21283,7 +21283,7 @@ Blockly.ContextMenu.blockDuplicateOption = function (a) {
       Blockly.duplicate_(a)
     }
   }
-};
+};/*
 Blockly.ContextMenu.blockCommentOption = function (a) {
   var b = {enabled: !goog.userAgent.IE};
   a.comment ? (b.text = Blockly.Msg.REMOVE_COMMENT, b.callback = function () {
@@ -21293,7 +21293,7 @@ Blockly.ContextMenu.blockCommentOption = function (a) {
     a.comment.setVisible(!0)
   });
   return b
-};
+};*/
 Blockly.ContextMenu.wsUndoOption = function (a) {
   return {text: Blockly.Msg.UNDO, enabled: a.hasUndoStack(), callback: a.undo.bind(a, !1)}
 };
@@ -21306,7 +21306,7 @@ Blockly.ContextMenu.wsCleanupOption = function (a, b) {
 Blockly.ContextMenu.toggleCollapseFn_ = function (a, b) {
   for (var c = 0, d = 0; d < a.length; d++) for (var e = a[d]; e;) setTimeout(e.setCollapsed.bind(e, b), c), e = e.getNextBlock(), c += 10
 };
-Blockly.ContextMenu.wsCollapseOption = function (a, b) {
+/*Blockly.ContextMenu.wsCollapseOption = function (a, b) {
   return {
     enabled: a, text: Blockly.Msg.COLLAPSE_ALL, callback: function () {
       Blockly.ContextMenu.toggleCollapseFn_(b, !0)
@@ -21319,7 +21319,7 @@ Blockly.ContextMenu.wsExpandOption = function (a, b) {
       Blockly.ContextMenu.toggleCollapseFn_(b, !1)
     }
   }
-};
+};*/
 Blockly.ContextMenu.commentDeleteOption = function (a) {
   return {
     text: Blockly.Msg.REMOVE_COMMENT, enabled: !0, callback: function () {
@@ -21564,12 +21564,12 @@ Blockly.BlockSvg.prototype.onMouseDown_ = function (a) {
 };
 Blockly.BlockSvg.prototype.showHelp_ = function () {
   var a = goog.isFunction(this.helpUrl) ? this.helpUrl() : this.helpUrl;
-  a && alert(a)
+  window.open(a);
 };
 Blockly.BlockSvg.prototype.showContextMenu_ = function (a) {
   if (!this.workspace.options.readOnly && this.contextMenu) {
     var b = [];
-    if (this.isDeletable() && this.isMovable() && !this.isInFlyout) b.push(Blockly.ContextMenu.blockDuplicateOption(this)), this.isEditable() && this.workspace.options.comments && b.push(Blockly.ContextMenu.blockCommentOption(this)), b.push(Blockly.ContextMenu.blockDeleteOption(this)); else if (this.parentBlock_ && this.isShadow_ && !Blockly.pxtBlocklyUtils.isShadowArgumentReporter(this)) {
+    if (this.isDeletable() && this.isMovable() && !this.isInFlyout) b.push(Blockly.ContextMenu.blockDuplicateOption(this)), /*this.isEditable() && this.workspace.options.comments && b.push(Blockly.ContextMenu.blockCommentOption(this)),*/ b.push(Blockly.ContextMenu.blockDeleteOption(this)); else if (this.parentBlock_ && this.isShadow_ && !Blockly.pxtBlocklyUtils.isShadowArgumentReporter(this)) {
       this.parentBlock_.showContextMenu_(a);
       return
     }
@@ -21653,6 +21653,8 @@ Blockly.BlockSvg.prototype.updateDisabled = function () {
   this.disabled || this.getInheritedDisabled() ? Blockly.utils.addClass(this.svgGroup_, "blocklyDisabled") && this.svgPath_.setAttribute("fill", "url(#" + this.workspace.options.disabledPatternId + ")") : Blockly.utils.removeClass(this.svgGroup_, "blocklyDisabled") && this.updateColour();
   for (var a = this.getChildren(!1), b = 0, c; c = a[b]; b++) c.updateDisabled()
 };
+
+/*
 Blockly.BlockSvg.prototype.getCommentText = function () {
   return this.comment ? this.comment.getText().replace(/\s+$/, "").replace(/ +\n/g, "\n") : ""
 };
@@ -21665,7 +21667,7 @@ Blockly.BlockSvg.prototype.setCommentText = function (a) {
   var b = !1;
   goog.isString(a) ? (this.comment || (this.comment = new Blockly.Comment(this), b = !0), this.comment.setText(a)) : this.comment && (this.comment.dispose(), b = !0);
   b && this.rendered && (this.render(), this.bumpNeighbours_())
-};
+};*/
 Blockly.BlockSvg.prototype.setWarningText = function (a, b) {
   this.warningTextDb_ || (this.warningTextDb_ = Object.create(null));
   var c = b || "";
