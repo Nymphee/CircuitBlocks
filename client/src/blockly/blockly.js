@@ -42,6 +42,7 @@ goog.require("Blockly.Arduino.tone");
 goog.require("Blockly.Arduino.math");
 goog.require("Blockly.Arduino.variables");
 goog.require("Blockly.Arduino.MAKERphone");
+goog.require("Blockly.Arduino.Spencer");
 goog.require("Blockly.Arduino.Nibble");
 goog.require("Blockly.Arduino.phone");
 goog.require("Blockly.Arduino.display");

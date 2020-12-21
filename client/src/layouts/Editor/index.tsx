@@ -50,6 +50,19 @@ void loop() {
 }`
 };
 
+StartSketches["cm:esp32:spencer"] = {
+  block: `<xml xmlns="http://www.w3.org/1999/xhtml"><block type="arduino_functions" id="a2?I/d{0K_Umf.d2k4D0" x="40" y="50"></block></xml>`,
+  code: `#include <Arduino.h>
+
+
+void setup() {
+}
+
+void loop() {
+  
+}`
+};
+
 const sanitizeName = (name: string) => name.replace(/ /g, '_').replace(/\./g, '');
 
 export enum SketchType { BLOCK, CODE }
@@ -313,7 +326,8 @@ class Editor extends Component<EditorProps, State> {
   load = (sketch: SketchLoadInfo) => {
     const Name: { [name: string]: string } = {
       "cm:esp32:ringo": "MAKERphone",
-      "cm:esp8266:nibble": "Nibble"
+      "cm:esp8266:nibble": "Nibble",
+      "cm:esp32:spencer": "Spencer"
     }
 
     Blockly.Device = Name[sketch.device];
