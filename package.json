@@ -31,6 +31,7 @@
     "productName": "CircuitBlocks",
     "copyright": "Copyright © 2020 CircuitMess",
     "buildDependenciesFromSource": true,
+    "npmRebuild": false,
     "afterSign": "scripts/notarize.js",
     "files": [
       "client/build/**/*",
