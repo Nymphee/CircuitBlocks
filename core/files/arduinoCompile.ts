@@ -204,6 +204,10 @@ export default class ArduinoCompile {
     private compile(code: string, callback: (binary) => void, device: string, stage?: string, minimal?: boolean){
         if(!stage) stage = "COMPILE";
 
+        if(device == "cm:esp32:spencer"){
+            device = "cm:esp32:ringo";
+        }
+
         ArduinoCompiler.compile(code, device, progress => this.send('runprogress', { stage: stage, progress }), minimal)
             .then((data) => {
                 callback(data.binary);
@@ -221,6 +225,10 @@ export default class ArduinoCompile {
     }
 
     private upload(binary: string, device: string, callback: () => void, pCallback?: (progress) => void, eCallback?: (error) => void){
+        if(device == "cm:esp32:spencer"){
+            device = "cm:esp32:ringo";
+        }
+
         if(this.arduinoSerial.getPort() == undefined){
             logger.log("Upload error: Ringo disconnected");
             console.log(new Error("Ringo disconnected"));
