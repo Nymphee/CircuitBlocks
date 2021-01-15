@@ -514,7 +514,7 @@ categories.push({
     blocks: [
         {
             name: "spencer_speech_listen",
-            xml: Blocks.spencer_speech.listen
+            xml: Blocks.spencer_speech.listen,
             group: "Speech to text"
         },
         {
