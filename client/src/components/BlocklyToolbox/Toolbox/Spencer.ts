@@ -515,16 +515,18 @@ categories.push({
         {
             name: "spencer_speech_listen",
             xml: Blocks.spencer_speech.listen
+            group: "Speech to text"
         },
-
         {
             name: "spencer_speech_processed",
-            xml: Blocks.spencer_speech.process
+            xml: Blocks.spencer_speech.process,
+            group: "Speech to text"
         },
 
         {
             name: "spencer_speech_synthesize",
-            xml: Blocks.spencer_speech.synthesize
+            xml: Blocks.spencer_speech.synthesize,
+            group: "Text to speech"
         },
 
     ],
