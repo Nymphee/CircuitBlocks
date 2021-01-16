@@ -7,7 +7,7 @@ Blockly.Arduino['spencer_speech_listen'] = function(block){
 	Blockly.Arduino.addDeclaration("Spencer_Intent_Result", "IntentResult* intentResult;");
 	Blockly.Arduino.addDeclaration("Spencer_Intent_Processing", "bool processingIntent = false;");
 
-	const CODE = "  " + Blockly.Arduino.statementToCode(block, 'CODE_PRE', Blockly.Arduino.ORDER_ATOMIC).replace().replace("\n", "\n  ");
+	const CODE = "  " + Blockly.Arduino.statementToCode(block, 'CODE_PRE', Blockly.Arduino.ORDER_ATOMIC).replace("\n", "\n  ");
 
 	var checkCode = "  if(listenResult != nullptr && !processingIntent){\n" +
 		"    intentResult = nullptr;\n" +
@@ -31,7 +31,7 @@ Blockly.Arduino['spencer_speech_listen'] = function(block){
 
 	Blockly.Arduino.addWrap("Spencer_Record_Check", "listenCheck();")
 
-	var code = `listenResult = nullptr;\n\tRecording.addJob({ &listenResult });`;
+	var code = `listenResult = nullptr;\nRecording.addJob({ &listenResult });\n`;
 	return code;
 };
 
@@ -51,24 +51,28 @@ Blockly.Arduino['spencer_speech_synthesize'] = function(block){
 	Blockly.Arduino.addDeclaration("Spencer_Speech_PrepS", "PreparedStatement* statement = nullptr;");
 
 	var text = Blockly.Arduino.valueToCode(block, 'TEXT', Blockly.Arduino.ORDER_ATOMIC);
-	const CODE_SYN = "  " + Blockly.Arduino.statementToCode(block, 'CODE_SYN', Blockly.Arduino.ORDER_ATOMIC).replace().replace("\n", "\n  ");
-	const CODE_DONE = "    " + Blockly.Arduino.statementToCode(block, 'CODE_DONE', Blockly.Arduino.ORDER_ATOMIC).replace().replace("\n", "\n    ");
+	var CODE_SYN = Blockly.Arduino.statementToCode(block, 'CODE_SYN', Blockly.Arduino.ORDER_ATOMIC);
+	var CODE_DONE = Blockly.Arduino.statementToCode(block, 'CODE_DONE', Blockly.Arduino.ORDER_ATOMIC);
+
+	if(CODE_DONE != ""){
+		CODE_DONE = "  " + CODE_DONE.replace("\n", "\n  ");
+	}
 
 	var playCode = "  if(error != TTSError::OK){\n" +
 		"    Serial.printf(\"Text to speech error %d\\n\", error);\n" +
 		"    return;\n" +
 		"  }\n" +
 		CODE_SYN +
-		(CODE_SYN === "  " ? "  " : "") +
-		"Playback.playMP3(source);\n" +
-		"  delete statement;\n" +
-		"  statement = nullptr;\n" +
-		`  Playback.setPlaybackDoneCallback([](){\n    ${CODE_DONE}\n  });`;
+		"  Playback.playMP3(source);\n" +
+		"  Playback.setPlaybackDoneCallback([](){\n" +
+		"    delete statement;\n" +
+		"    statement = nullptr;\n" +
+		`${CODE_DONE}\n  });`;
 
 	const funcName = `speechPlay`;
 	const func = `void ${funcName}(TTSError error, CompositeAudioFileSource* source){\n${playCode}\n}`;
 	Blockly.Arduino.addFunction(funcName, func);
 
-	var code = `statement = new PreparedStatement();\nstatement->addTTS(${text});\nstatement->prepare(${funcName});`;
+	var code = `statement = new PreparedStatement();\nstatement->addTTS(${text});\nstatement->prepare(${funcName});\n`;
 	return code;
 };

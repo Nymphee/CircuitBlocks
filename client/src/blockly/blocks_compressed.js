@@ -1965,6 +1965,7 @@ Blockly.PXTBlockly.FunctionUtils.createAllInputs_ = function (a) {
   var e = this;
   this.arguments_.forEach(function (b) {
     var c = e.appendValueInput(b.id);
+    console.log(b);
     Blockly.Functions.isCustomType(b.type) ? c.setCheck(b.type) : c.setCheck(b.type.charAt(0).toUpperCase() + b.type.slice(1));
     e.isInsertionMarker() || e.populateArgument_(b, a, c)
   });

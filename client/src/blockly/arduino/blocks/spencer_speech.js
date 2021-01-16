@@ -49,12 +49,12 @@ Blockly.Blocks["spencer_speech_processed"] = {
 		this.arguments_ = [
 			{
 				name: "intentResult->transcript",
-				type: Blockly.Types.TEXT,
+				type: "String",
 				id: "SSR_transcript"
 			},
 			{
 				name: "intentResult->intent",
-				type: Blockly.Types.TEXT,
+				type: "String",
 				id: "SSR_intent"
 			}
 		];
