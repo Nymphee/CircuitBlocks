@@ -196,6 +196,7 @@ export class Blocks {
 
     public static ledmatrix: any = {
         push: '<block type="ledmatrix_push"></block>',
+        clear: '<block type="ledmatrix_clear"></block>',
         pixel: '<block type="ledmatrix_pixel"></block>',
         text: '<block type="ledmatrix_text"></block>',
         brightness: '<block type="ledmatrix_brightness"></block>',

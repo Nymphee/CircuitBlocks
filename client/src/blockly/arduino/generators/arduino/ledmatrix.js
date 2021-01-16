@@ -9,6 +9,11 @@ Blockly.Arduino['ledmatrix_push'] = function(block) {
 	return code;
 };
 
+Blockly.Arduino['ledmatrix_clear'] = function(block) {
+	var code = "LEDmatrix.clear();\n";
+	return code;
+};
+
 Blockly.Arduino['ledmatrix_pixel'] = function(block) {
 	var brightness = Blockly.Arduino.valueToCode(block, 'BRIGHTNESS', Blockly.Arduino.ORDER_ATOMIC);
 	var x = Blockly.Arduino.valueToCode(block, 'X', Blockly.Arduino.ORDER_ATOMIC);

@@ -15,6 +15,17 @@ Blockly.defineBlocksWithJsonArray([
 		helpUrl: ""
 	},
 	{
+		type: "ledmatrix_clear",
+		message0: "clear the LED matrix",
+		args0: [],
+		previousStatement: null,
+		nextStatement: null,
+		outputShape: Blockly.OUTPUT_SHAPE_SQUARE,
+		colour: Blockly.Msg.DISPLAY_HUE,
+		tooltip: "Turns of all the LEDs on the matrix.",
+		helpUrl: ""
+	},
+	{
 		type: "ledmatrix_pixel",
 		message0: "set pixel brightness %3 x %1 y %2",
 		args0: [

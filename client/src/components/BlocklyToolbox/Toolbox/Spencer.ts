@@ -400,6 +400,10 @@ categories.push({
             xml: Blocks.ledmatrix.push
         },
         {
+            name: "ledmatrix_clear",
+            xml: Blocks.ledmatrix.clear
+        },
+        {
             name: "ledmatrix_brightness",
             xml: Blocks.ledmatrix.brightness
         },
