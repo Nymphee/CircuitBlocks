@@ -49,30 +49,49 @@ Blockly.Arduino['spencer_speech_processed'] = function(block){
 Blockly.Arduino['spencer_speech_synthesize'] = function(block){
 	Blockly.Arduino.addInclude("Spencer_Speech_PrepS_Include", "#include <PreparedStatement.h>");
 	Blockly.Arduino.addDeclaration("Spencer_Speech_PrepS", "PreparedStatement* statement = nullptr;");
+	Blockly.Arduino.addDeclaration("Spencer_Speech_Guard", "bool synthesizing = false;");
 
 	var text = Blockly.Arduino.valueToCode(block, 'TEXT', Blockly.Arduino.ORDER_ATOMIC);
 	var CODE_SYN = Blockly.Arduino.statementToCode(block, 'CODE_SYN', Blockly.Arduino.ORDER_ATOMIC);
 	var CODE_DONE = Blockly.Arduino.statementToCode(block, 'CODE_DONE', Blockly.Arduino.ORDER_ATOMIC);
+	var CODE_ERR = Blockly.Arduino.statementToCode(block, 'CODE_ERR', Blockly.Arduino.ORDER_ATOMIC);
 
 	if(CODE_DONE != ""){
 		CODE_DONE = "  " + CODE_DONE.replace("\n", "\n  ");
 	}
 
-	var playCode = "  if(error != TTSError::OK){\n" +
-		"    Serial.printf(\"Text to speech error %d\\n\", error);\n" +
+	if(CODE_ERR != ""){
+		CODE_ERR = "  " + CODE_ERR.replace("\n", "\n  ");
+		CODE_ERR += "\n";
+	}
+
+	var playCode = "  synthesizing = false;\n" +
+		"  if(error != TTSError::OK){\n" +
+		"    Serial.printf(\"Text to speech error %d: %s\\n\", error, TTSStrings[(int) error]);\n" +
+		"    delete source;\n" +
+		"    delete statement;\n" +
+		"    statement = nullptr;\n" +
+		CODE_ERR +
 		"    return;\n" +
 		"  }\n" +
 		CODE_SYN +
 		"  Playback.playMP3(source);\n" +
 		"  Playback.setPlaybackDoneCallback([](){\n" +
-		"    delete statement;\n" +
-		"    statement = nullptr;\n" +
 		`${CODE_DONE}\n  });`;
 
 	const funcName = `speechPlay`;
 	const func = `void ${funcName}(TTSError error, CompositeAudioFileSource* source){\n${playCode}\n}`;
 	Blockly.Arduino.addFunction(funcName, func);
 
-	var code = `statement = new PreparedStatement();\nstatement->addTTS(${text});\nstatement->prepare(${funcName});\n`;
+	const code = "if(synthesizing){\n" +
+		"  Serial.println(\"Another speech synthesis operation is already pending\");\n" +
+		"}else{\n" +
+		"  synthesizing = true;\n" +
+		"  delete statement;\n" +
+		"  statement = new PreparedStatement();\n" +
+		`  statement->addTTS(${text});\n` +
+		`  statement->prepare(${funcName});\n` +
+		"}\n";
+
 	return code;
 };

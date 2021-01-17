@@ -126,6 +126,11 @@ Blockly.defineBlocksWithJsonArray([
 			type: "input_statement",
 			name: "CODE_DONE"
 		}],
+		message3: "if error happens %1",
+		args3: [{
+			type: "input_statement",
+			name: "CODE_ERR"
+		}],
 		previousStatement: null,
 		nextStatement: null,
 		outputShape: Blockly.OUTPUT_SHAPE_SQUARE,
