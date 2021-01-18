@@ -39,7 +39,12 @@ Blockly.Blocks["spencer_speech_processed"] = {
 				type: "input_statement",
 				name: "CODE"
 			}],
-			message2: " ",
+			message2: "if error happens %1",
+			args2: [{
+				type: "input_statement",
+				name: "CODE_ERR"
+			}],
+			message3: " ",
 			outputShape: Blockly.OUTPUT_SHAPE_SQUARE,
 			colour: Blockly.Msg.IO_HUE,
 			tooltip: "When recorded speech gets processed",

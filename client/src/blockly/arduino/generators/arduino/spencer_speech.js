@@ -6,24 +6,43 @@ Blockly.Arduino['spencer_speech_listen'] = function(block){
 	Blockly.Arduino.addDeclaration("Spencer_Record_Result", "const char* listenResult;");
 	Blockly.Arduino.addDeclaration("Spencer_Intent_Result", "IntentResult* intentResult;");
 	Blockly.Arduino.addDeclaration("Spencer_Intent_Processing", "bool processingIntent = false;");
+	Blockly.Arduino.addDeclaration("Spencer_Intent_Guard", "bool detectingIntent = false;");
 
 	const CODE = "  " + Blockly.Arduino.statementToCode(block, 'CODE_PRE', Blockly.Arduino.ORDER_ATOMIC).replace("\n", "\n  ");
 
 	var checkCode = "  if(listenResult != nullptr && !processingIntent){\n" +
-		"    intentResult = nullptr;\n" +
 		"    processingIntent = true;\n" +
+		"    delete intentResult;\n" +
+		"    intentResult = nullptr;\n" +
 		"    SpeechToIntent.addJob({ listenResult, &intentResult });\n\n" +
 		CODE + "\n" +
 		"  }\n" +
 		"  if(processingIntent && intentResult != nullptr){\n" +
-		"    listenResult = nullptr;\n" +
+		"    detectingIntent = false;\n" +
 		"    processingIntent = false;\n" +
+		"    listenResult = nullptr;\n" +
+		"    if(intentResult->error != IntentResult::Error::OK && intentResult->error != IntentResult::Error::INTENT){\n" +
+		"      Serial.printf(\"Speech to text error %d: %s\\n\", intentResult->error, STIStrings[(int) intentResult->error]);\n" +
+		"      listenError();\n" +
+		"      delete intentResult;\n"+
+		"      intentResult = nullptr;\n"+
+		"      return;\n" +
+		"    }\n" +
+		"    if(intentResult->error == IntentResult::Error::INTENT){\n" +
+		"      intentResult->intent = \"none\";\n"+
+		"    }\n" +
 		"    listenProcess();\n" +
+		"    delete intentResult;\n"+
+		"    intentResult = nullptr;\n"+
 		"  }";
 
 	const processFuncName = `listenProcess`;
 	const processFunc = `void ${processFuncName}(){\n}`;
 	Blockly.Arduino.addFunction(processFuncName, processFunc);
+
+	const errorFuncName = `listenError`;
+	const errorFunc = `void ${errorFuncName}(){\n}`;
+	Blockly.Arduino.addFunction(errorFuncName, errorFunc);
 
 	const checkFuncName = `listenCheck`;
 	const checkFunc = `void ${checkFuncName}(){\n${checkCode}\n}`;
@@ -31,12 +50,20 @@ Blockly.Arduino['spencer_speech_listen'] = function(block){
 
 	Blockly.Arduino.addWrap("Spencer_Record_Check", "listenCheck();")
 
-	var code = `listenResult = nullptr;\nRecording.addJob({ &listenResult });\n`;
+	const code = "if(detectingIntent){\n" +
+		"  Serial.println(\"Another listen and intent detection operation is already pending\");\n" +
+		"}else{\n" +
+		"  detectingIntent = true;\n" +
+		"  listenResult = nullptr;\n" +
+		"  Recording.addJob({ &listenResult });\n" +
+		"}\n";
+
 	return code;
 };
 
 Blockly.Arduino['spencer_speech_processed'] = function(block){
 	const CODE = Blockly.Arduino.statementToCode(block, 'CODE', Blockly.Arduino.ORDER_ATOMIC);
+	const CODE_ERR = Blockly.Arduino.statementToCode(block, 'CODE_ERR', Blockly.Arduino.ORDER_ATOMIC);
 
 	const processFuncName = `listenProcess`;
 	if(Blockly.Arduino.codeFunctions_[processFuncName] !== undefined){
@@ -44,6 +71,13 @@ Blockly.Arduino['spencer_speech_processed'] = function(block){
 	}
 	const processFunc = `void ${processFuncName}(){\n${CODE}\n}`;
 	Blockly.Arduino.addFunction(processFuncName, processFunc);
+
+	const errorFuncName = `listenError`;
+	if(Blockly.Arduino.codeFunctions_[errorFuncName] !== undefined){
+		Blockly.Arduino.codeFunctions_[errorFuncName] = undefined;
+	}
+	const errorFunc = `void ${errorFuncName}(){\n${CODE_ERR}\n}`;
+	Blockly.Arduino.addFunction(errorFuncName, errorFunc);
 }
 
 Blockly.Arduino['spencer_speech_synthesize'] = function(block){
