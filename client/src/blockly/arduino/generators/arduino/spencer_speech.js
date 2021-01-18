@@ -32,6 +32,10 @@ Blockly.Arduino['spencer_speech_listen'] = function(block){
 		"      intentResult->intent = (char*) malloc(5);\n" +
 		"      memcpy(intentResult->intent, \"NONE\", 5);\n" +
 		"    }\n" +
+		"    if(intentResult->transcript == nullptr){\n" +
+		"      intentResult->transcript = (char*) malloc(1);\n" +
+		"      memset(intentResult->transcript, 0, 1);\n" +
+		"    }\n" +
 		"    listenProcess();\n" +
 		"    delete intentResult;\n"+
 		"    intentResult = nullptr;\n"+
