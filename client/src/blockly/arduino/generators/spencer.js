@@ -15,4 +15,5 @@ Blockly.Arduino.additionals["Spencer"] = function(){
   Blockly.Arduino.addSetup('serial_clr_' + serialId, clearCode, false);
 
   Blockly.Arduino.addSetup("Spencer_begin", "Spencer.begin();");
+  Blockly.Arduino.addSetup("Spencer_settings", "Spencer.loadSettings();");
 };
