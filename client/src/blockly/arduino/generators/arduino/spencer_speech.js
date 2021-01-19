@@ -116,7 +116,10 @@ Blockly.Arduino['spencer_speech_synthesize'] = function(block){
 		CODE_SYN +
 		"  Playback.playMP3(source);\n" +
 		"  Playback.setPlaybackDoneCallback([](){\n" +
-		`${CODE_DONE}\n  });`;
+		`${CODE_DONE}\n` +
+		"  });\n" +
+		"  delete statement;\n" +
+		"  statement = nullptr;\n";
 
 	const funcName = `speechPlay`;
 	const func = `void ${funcName}(TTSError error, CompositeAudioFileSource* source){\n${playCode}\n}`;
