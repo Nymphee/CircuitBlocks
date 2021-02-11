@@ -11,6 +11,8 @@ import {SketchLoadInfo, SketchType} from "../Editor";
 import {NewSketch} from "./components/NewSketch";
 import {RestoreFirmware} from "./components/RestoreFirmware";
 import {SpencerSettings} from "./components/SpencerSettings";
+import {type} from "os";
+import {DeleteFileConfirm} from "./components/DeleteFileConfirm";
 
 // const projects = [
 //   {
@@ -49,6 +51,9 @@ interface HomeState {
   newSketchOpen: boolean;
   restoreFirmwareModalOpen: boolean;
   spencerSettingsModalOpen: boolean;
+  actionType: boolean;
+  deleteSketch: string;
+  sketchPath: string;
 }
 
 const electron: AllElectron = (window as any).require('electron');
@@ -97,7 +102,10 @@ export default class Home extends React.Component<HomeProps, HomeState> {
       projectsLoading: true,
       examplesLoading: true,
       newSketchOpen: false,
-      restoreFirmwareModalOpen: false
+      restoreFirmwareModalOpen: false,
+      actionType: false,
+      deleteSketch: '',
+      sketchPath: '',
     };
 
     ipcRenderer.on('sketches', (event: IpcRendererEvent, args) => {
@@ -126,6 +134,8 @@ export default class Home extends React.Component<HomeProps, HomeState> {
     this.loadSketches();
   }
 
+
+
   public loadSketches(){
     this.setState({ projectsLoading: true, examplesLoading: true });
 
@@ -143,25 +153,43 @@ export default class Home extends React.Component<HomeProps, HomeState> {
   }
 
   public openFile(type: 'NEW' | 'NEWTYPE' | 'OPEN', device: string, sketch?: Sketch, sketchType?: SketchType){
-    const { reportError, openEditor } = this.props;
+      const { reportError, openEditor } = this.props;
+      if (type === 'NEW') {
+        this.setState({ newSketchOpen: true });
+      } else if(type == "NEWTYPE" && sketchType != undefined) {
+        this.setState({ newSketchOpen: false });
+        openEditor({ type: sketchType, device, data: "" }, undefined);
+      } else if(sketch) {
+        ipcRenderer.once('load', (event: IpcRendererEvent, args) => {
+          if (args.error) {
+            reportError(args.error);
+          } else {
+            openEditor({ type: args.type, device: args.device, data: args.data }, sketch.title);
+          }
+        });
 
-    if (type === 'NEW') {
-      this.setState({ newSketchOpen: true });
-    } else if(type == "NEWTYPE" && sketchType != undefined) {
-      this.setState({ newSketchOpen: false });
-      openEditor({ type: sketchType, device, data: "" }, undefined);
-    } else if(sketch) {
-      ipcRenderer.once('load', (event: IpcRendererEvent, args) => {
-        if (args.error) {
-          reportError(args.error);
-        } else {
-          openEditor({ type: args.type, device: args.device, data: args.data }, sketch.title);
-        }
-      });
+        ipcRenderer.send('load', { path: sketch.path });
 
-      ipcRenderer.send('load', { path: sketch.path });
     }
   }
+
+  private openDeleteModal = (sketchName: string, path: string) => {
+    this.setState({actionType: true, deleteSketch: sketchName, sketchPath: path});
+  }
+
+  private deleteSketches = (option: string, deleteSketches: string) => {
+    let path = this.state.sketchPath;
+    console.log(type, deleteSketches);
+    this.setState({ deleteSketch: deleteSketches, actionType: true});
+    if(option === "delete" && option){
+      ipcRenderer.send("delete", {deleteSketches, path});
+      this.setState({actionType: false});
+    } else if(option==="cancel" && option){
+      this.setState({actionType: false})
+    }
+
+    this.loadSketches();
+  };
 
   public render(){
     const { isEditorOpen, scrollStop } = this.props;
@@ -178,10 +206,11 @@ export default class Home extends React.Component<HomeProps, HomeState> {
             }}
         >
 
-          <NewSketch open={newSketchOpen} callback={ (type: SketchType, device: string) => this.openFile("NEWTYPE", device, undefined, type) } />
+          <NewSketch  open={newSketchOpen} callback={ (type: SketchType, device: string) => this.openFile("NEWTYPE", device, undefined, type) } closeNewSketchModal={()=> this.setState({ newSketchOpen: false}) } />
+          <DeleteFileConfirm deleteSketch={this.state.deleteSketch} open={this.state.actionType} closeModalCallback={(option,deleteSketches) => this.deleteSketches(option, deleteSketches)}/>
           <HeaderImage className={loggedIn ? 'shrink' : ''} loggedIn={loggedIn} />
           <HeaderSection loggedIn={loggedIn} restoreCallback={() => this.setState({ restoreFirmwareModalOpen: true })} openSpencerModal={()=> this.setState({ spencerSettingsModalOpen: true})} />
-          <RestoreFirmware open={restoreFirmwareModalOpen} callback={device => this.restoreFirmware(device)} />
+          <RestoreFirmware open={restoreFirmwareModalOpen} callback={device => this.restoreFirmware(device)} closeFirmwareModal={() => this.setState({restoreFirmwareModalOpen: false})}/>
           <SpencerSettings
             open={spencerSettingsModalOpen}
             closeCallback={() => { this.setState({ spencerSettingsModalOpen: false }); }}
@@ -190,6 +219,7 @@ export default class Home extends React.Component<HomeProps, HomeState> {
               <>
                 <Main>
                   <ProjectSection
+                      deleteSketches={(deleteSketches, path) => this.openDeleteModal(deleteSketches, path)}
                       title={'Your sketches'}
                       projects={sketches}
                       onPress={(type, sketch) => this.openFile(type, sketch ? sketch.device : "cm:esp32:ringo", sketch)}
@@ -199,6 +229,7 @@ export default class Home extends React.Component<HomeProps, HomeState> {
 
                   { examples.map(category =>
                       <ProjectSection
+                          deleteSketches={(deleteSketches, path) => this.openDeleteModal(deleteSketches, path)}
                           title={category.title}
                           projects={category.sketches}
                           key={`Section-${category.title}`}
