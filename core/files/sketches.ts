@@ -42,6 +42,28 @@ export default class Sketches {
     public constructor(){
         Sketches.domParser = new DomParser();
 
+        ipcMain.on("delete", (event, args) => {
+            const parsed = path.parse(args.path);
+            if(parsed.ext.toLowerCase() === ".xml"){
+                try {
+                    fs.unlinkSync(args.path);
+                    console.log("DELETING");
+                } catch (err) {
+                    console.error("Error - ", err.message);
+                }
+            } else if( parsed.ext.toLowerCase() === ".ino" ){
+                try {
+                    fs.unlinkSync(args.path);
+                    console.log("DELETING");
+                    fs.rmdirSync(parsed.dir);
+                } catch (err) {
+                    console.error("Error - ", err.message);
+                }
+            }
+
+
+        })
+
         ipcMain.on("sketches", (event, args) => {
             const installInfo = ArduinoCompiler.getInstallInfo();
 
@@ -234,7 +256,7 @@ export default class Sketches {
         const categories: Category[] = [];
 
         const getSketches = this.getBlockSketches;
-		
+
 		if(!fs.existsSync(examplesDir)) return [];
 
         const categoryDirs = fs.readdirSync(examplesDir);
