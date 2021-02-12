@@ -105,6 +105,9 @@ interface State {
   codeDidChange?: boolean;
   isExitEditor: boolean;
   isExitEditorOption: string;
+  isInitialLoad: boolean;
+  isIgnoreNaming: boolean;
+  defaultCode: string;
 }
 
 const NAV_BAR_HEIGHT = 64;
@@ -131,6 +134,9 @@ const INIT_STATE: State = {
   codeDidChange: false,
   isExitEditor: false,
   isExitEditorOption: "",
+  isInitialLoad: false,
+  isIgnoreNaming: false,
+  defaultCode: "",
 };
 
 interface Notification {
@@ -234,6 +240,7 @@ class Editor extends Component<EditorProps, State> {
   }
 
   componentDidMount() {
+
     Blockly.prompt = (a, b, c) => {
       const initState = a.split("'")[1];
       this.callback = c;
@@ -245,7 +252,9 @@ class Editor extends Component<EditorProps, State> {
     this.workspace.addChangeListener((e: any) => {
       // @ts-ignore
       const code = Blockly.Arduino.workspaceToCode(this.workspace);
+      console.log(this.state.codeDidChange);
       this.setState({ code});
+
       this.setState({ codeDidChange: true});
     });
 
@@ -255,6 +264,7 @@ class Editor extends Component<EditorProps, State> {
 
     ipcRenderer.send('ports');
   }
+
 
 
   componentWillUpdate(nextProps: Readonly<EditorProps>, nextState: Readonly<State>, nextContext: any): void {
@@ -281,6 +291,7 @@ class Editor extends Component<EditorProps, State> {
   }
 
   componentWillUnmount() {
+    this.resetStateOnExit();
     window.removeEventListener('resize', this.updateDimensions);
     window.removeEventListener('keydown', this.handleKeyboardSave);
   }
@@ -334,26 +345,36 @@ class Editor extends Component<EditorProps, State> {
     }
 
     Blockly.Device = Name[sketch.device];
+    this.setState({defaultCode: StartSketches[sketch.device].code})
 
     if(sketch.type == SketchType.CODE){
       let startCode: string;
 
       if(sketch.data === ""){
         startCode = StartSketches[sketch.device].code;
+        if(this.props.title === ""){
+          this.setState({isModalOpen: true});
+        }
       }else{
         startCode = sketch.data;
       }
-
+      console.log(sketch.data);
       this.setState({ code: startCode, type: sketch.type, startCode: startCode });
     }else{
-      if(sketch.data === "") sketch.data = StartSketches[sketch.device].block;
+      if(sketch.data === "") {
+        sketch.data = StartSketches[sketch.device].block;
+        if(this.props.title === ""){
+          this.setState({isModalOpen: true});
+        }
+
+      }
       const xml = Blockly.Xml.textToDom(sketch.data);
       this.workspace.clear();
       Blockly.Xml.domToWorkspace(xml, this.workspace);
       this.injectToolbox(sketch.device);
 
       this.setState({ type: sketch.type });
-
+      console.log(this.workspace, xml);
       setTimeout(() => this.setState({codeDidChange: false}), 1250)
     }
   };
@@ -433,12 +454,17 @@ class Editor extends Component<EditorProps, State> {
     this.setState({isExitEditor: false});
   };
 
-  openSaveModal = (option?: string) => {
-    if (this.state.type == SketchType.BLOCK && this.workspace.getAllBlocks().length === 0) {
-      this.props.reportError("You can't save an empty sketch.");
-      return;
-    }
+  resetStateOnExit = () => {
+    this.setState({
+      codeDidChange: false,
+      isExitEditor: false,
+      isExitEditorOption: "",
+      isModalOpen: false,
+      isIgnoreNaming: false,
+    })
+  }
 
+  getSketches(){
     ipcRenderer.once('sketches', (event, arg) => {
       if (!arg.sketches) return;
       const relevantSketches = this.state.type == SketchType.BLOCK ? arg.sketches.block : arg.sketches.code;
@@ -448,16 +474,35 @@ class Editor extends Component<EditorProps, State> {
 
     ipcRenderer.send('sketches');
 
-    this.setState({
-      isModalOpen: true,
-      modal: {
-        type: 'save'
-      },
-      filename: '',
-      filenameError: 'EMPTY'
-    });
+    if(this.state.isModalOpen){
+      this.setState({
+        filename: '',
+        filenameError: 'EMPTY'
+      });
+    } else {
+      this.setState({
+        isModalOpen: true,
+        modal: {
+          type: 'save'
+        },
+        filename: '',
+        filenameError: 'EMPTY'
+      });
+    }
+
+  }
+
+  openSaveModal = (option?: string) => {
+    if (this.state.type == SketchType.BLOCK && this.workspace.getAllBlocks().length === 0) {
+      this.props.reportError("You can't save an empty sketch.");
+      return;
+    }
+
+    this.getSketches();
+
     if(option === "saveAndExit"){
       if(this.props.title !== ""){
+        this.resetStateOnExit();
         this.props.openHome();
       }
     }
@@ -523,13 +568,13 @@ class Editor extends Component<EditorProps, State> {
             break;
           } else if (this.props.title !== "") {
             this.save();
-            this.setState({isExitEditor: false});
+            this.resetStateOnExit();
             this.props.openHome();
             break;
           }
         case "exit":{
           this.props.openHome();
-          this.setState({isExitEditor: false});
+          this.resetStateOnExit();
           break;
         }
 
@@ -540,14 +585,17 @@ class Editor extends Component<EditorProps, State> {
       }
 
     } else {
-      this.setState({isExitEditor: false});
+      this.resetStateOnExit();
       this.props.openHome();
+
     }
   }
 
-
   onChangeSaveModal = (e: React.ChangeEvent<HTMLInputElement>) => {
     const filename = e.target.value;
+    if(!this.state.filenames){
+      this.getSketches();
+    }
     const newState: { filename: string; filenameError: string | undefined } = {
       filename,
       filenameError: undefined
@@ -564,6 +612,9 @@ class Editor extends Component<EditorProps, State> {
     this.setState(newState);
   };
 
+  exitMonacoEditor(option: boolean){
+    this.setState({codeDidChange: option});
+  }
   finishSaveModal = () => {
     this.setState({
       isModalOpen: false,
@@ -575,7 +626,6 @@ class Editor extends Component<EditorProps, State> {
   cleanup = () => {
     Blockly.hideChaff();
   };
-
 
   render() {
     const {
@@ -715,11 +765,11 @@ class Editor extends Component<EditorProps, State> {
               theme={theme}
               extendedHeader={type == SketchType.BLOCK}
             />
-            { (type == SketchType.CODE) && <Monaco ref={monacoRef} startCode={startCode} theme={theme} editing={true} /> || <MonacoRO code={code} theme={theme} /> }
+            { (type == SketchType.CODE) && <Monaco isNewFile={() => this.setState({isModalOpen: true})} ref={monacoRef} startCode={startCode} theme={theme} editing={true} exitEditor={(option) => this.exitMonacoEditor(option)} defaultCode={this.state.defaultCode}/> || <MonacoRO code={code} theme={theme} /> }
           </EditorPopup>
         )}
       </div>
-    );
+    )
   }
 }
 
