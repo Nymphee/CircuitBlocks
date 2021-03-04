@@ -1,0 +1,62 @@
+.app {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    padding: 0px 20px;
+    margin-top: -20px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.grid {
+    margin-right: 20px;
+    margin-top: 25px;
+    display: grid;
+    width: 32vw;
+    height: 18vw;
+    outline: 1px solid black;
+    grid-template-columns: repeat(16, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.cell {
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+#page-numbers {
+    position: absolute;
+    bottom: 0px;
+    list-style: none;
+    display: flex;
+}
+
+#page-numbers > li {
+    margin-right: 0.3em;
+    color: blue;
+    user-select: none;
+    cursor: pointer;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.clickable{
+    cursor: pointer;
+}
+
+.buttonToSave {
+    margin: 0 10px !important;
+}
