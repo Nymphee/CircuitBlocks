@@ -74,6 +74,7 @@ const electron: AllElectron = (window as any).require('electron');
 const ipcRenderer: IpcRenderer = electron.ipcRenderer;
 
 interface Props {
+  openEditSprite: () => void;
   home: () => void;
   title: string;
   load: () => void;
@@ -93,6 +94,7 @@ interface Props {
 
 const EditorHeader: React.FC<Props> = (props) => {
   const {
+    openEditSprite,
     home,
     title,
     load,
@@ -164,6 +166,12 @@ const EditorHeader: React.FC<Props> = (props) => {
         { null && <Button className="icon" onClick={load}>
           <i className="material-icons"> folder_open </i>
         </Button> }
+        {
+          device === "cm:esp32:spencer" ?
+              <Button className={`icon`} onClick={openEditSprite}>
+                <i className="material-icons"> add </i>
+              </Button> : ""
+        }
         <Button className={`icon`} onClick={exportBinary}>
           <i className="material-icons"> save_alt </i>
         </Button>

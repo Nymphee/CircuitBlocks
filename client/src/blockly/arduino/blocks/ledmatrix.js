@@ -216,3 +216,50 @@ Blockly.defineBlocksWithJsonArray([
 		helpUrl: ""
 	}
 ]);
+
+
+Blockly.Blocks["ledmatrix_custom_sprite"] = {
+	init: function(){
+		let spriteLs = (JSON.parse(localStorage.getItem("spriteList")));
+		this.message0 = "%1"
+		if(spriteLs){
+			this.appendDummyInput()
+				.appendField(
+					new Blockly.FieldDropdown(function(){
+						for(var e=[], foo = 0; foo < spriteLs.length; foo++){
+							console.log(e);
+							e.push([spriteLs[foo].name]);
+						}
+						return e;
+					}), "SPRITES")
+		}
+		this.setOutput("LEDmatrix_custom_sprite");
+		this.setOutputShape(Blockly.OUTPUT_SHAPE_SQUARE);
+		this.setColour(Blockly.Msg.DISPLAY_HUE);
+	}
+}
+
+
+Blockly.defineBlocksWithJsonArray([
+	{
+		type: "ledmatrix_use_custom_sprite",
+		message0: "select %2 and display it for %1 seconds",
+		args0: [
+			{
+				type: "input_value",
+				name: "DURATION",
+			},
+			{
+				type: "input_value",
+				name: "SPRITES",
+				check: "LEDmatrix_custom_sprite"
+			}
+		],
+		previousStatement: null,
+		nextStatement: null,
+		outputShape: Blockly.OUTPUT_SHAPE_SQUARE,
+		colour: Blockly.Msg.DISPLAY_HUE,
+		tooltip: "Display a LED matrix sprite",
+		helpUrl: ""
+	}
+])

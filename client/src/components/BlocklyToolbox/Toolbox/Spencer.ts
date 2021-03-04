@@ -418,6 +418,11 @@ categories.push({
             group: "Drawing"
         },
         {
+            name: "ledmatrix_custom_sprite",
+            xml: Blocks.ledmatrix.custom_sprite,
+            group: "Drawing"
+        },
+        {
             name: "ledmatrix_start_animation",
             xml: Blocks.ledmatrix.start_animation,
             group: "Animation"

@@ -57,3 +57,16 @@ Blockly.Arduino['ledmatrix_animation'] = function(block) {
 
 	return [ `"${anim}"`, Blockly.Arduino.ORDER_ATOMIC ];
 };
+
+Blockly.Arduino['ledmatrix_custom_sprite'] = function(block) {
+	var y = block.getFieldValue('SPRITES');
+	if (y){
+		return [ `"${y}"`, Blockly.Arduino.ORDER_ATOMIC ];
+	}
+}
+
+Blockly.Arduino['ledmatrix_use_custom_sprite'] = function(block) {
+	var z = Blockly.Arduino.valueToCode(block, 'SPRITES', Blockly.Arduino.ORDER_ATOMIC)
+	var x = Blockly.Arduino.valueToCode(block, 'DURATION', Blockly.Arduino.ORDER_ATOMIC);
+	return `display ${z} for ${x} seconds`;
+}

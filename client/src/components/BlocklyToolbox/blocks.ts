@@ -202,6 +202,7 @@ export class Blocks {
         brightness: '<block type="ledmatrix_brightness"><value name="BRIGHTNESS"><shadow type="math_number"><field name="NUM">150</field></shadow></value></block>',
         start_animation: '<block type="ledmatrix_start_animation"><value name="ANIMATION"><shadow type="ledmatrix_animation"><field name="ANIMATION">GIF-idle1.gif</field></shadow></value></block>',
         stop_animation: '<block type="ledmatrix_stop_animation"></block>',
+        custom_sprite: '<block type="ledmatrix_use_custom_sprite"><value name="SPRITES"><shadow type="ledmatrix_custom_sprite"><field name="SPRITES">sprite</field></shadow></value><value name="DURATION"><shadow type="math_number"><field name="NUM">2</field></shadow></value></block>',
     }
 
     public static audio_spencer: any = {
